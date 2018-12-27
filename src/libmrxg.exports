@@ -2,8 +2,16 @@ libmrxgInitialize
 libmrxgInitializeWithHandlers
 libmrxgTerminate
 libmrxgPrintStackTrace
+mlxIfft3c
+ifft3c
 mlxMapVBVD
 mapVBVD
 mlxMrxg_pre
 mrxg_pre
+mlxRead_twix_hdr
+read_twix_hdr
+mlxRedim
+redim
+mlxTwix_map_obj
+twix_map_obj
 

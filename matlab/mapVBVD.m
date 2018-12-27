@@ -115,30 +115,11 @@ function twix_obj = mapVBVD(filename,varargin)
 %   % NEW: unsorted raw data (in acq. order):
 %   image_data = twix_obj.image.unsorted(); % no slicing supported atm
 %
-
-if ischar(filename) 
-    % assume that complete path is given
-    if  ~strcmpi(filename(end-3:end),'.dat');
-        filename=[filename '.dat'];   %% adds filetype ending to file
-    end
-else
-    % filename not a string, so assume that it is the MeasID
-    measID   = filename;
-    filelist = dir('*.dat');
-    filesfound = 0;
-    for k=1:numel(filelist)
-        if regexp(filelist(k).name,['^meas_MID0*' num2str(measID) '.*\.dat'])==1
-            if filesfound == 0
-                filename = filelist(k).name;
-            end
-            filesfound = filesfound+1;
-        end
-    end
-    if filesfound == 0
-        error(['File with meas. id ' num2str(measID) ' not found.']);
-    elseif filesfound > 1
-        disp(['Multiple files with meas. id ' num2str(measID) ' found. Choosing first occurence.']);
-    end
+% assume that complete path is given
+fprintf('type of filename : %s\n', class(filename));
+filename = char(filename);
+if  ~strcmpi(filename(end-3:end),'.dat')
+    filename=[filename '.dat'];   %% adds filetype ending to file
 end
 
 

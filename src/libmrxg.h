@@ -1,8 +1,14 @@
 //
 // MATLAB Compiler: 5.2 (R2014b)
-// Date: Thu Dec 27 17:40:59 2018
+// Date: Fri Dec 28 01:58:16 2018
 // Arguments: "-B" "macro_default" "-W" "cpplib:libmrxg" "-T" "link:lib" "-d"
-// "src" "matlab/mapVBVD.m" "matlab/mrxg_pre.m" 
+// "/home/changyoung/hdd/workspace/use-matlab/src"
+// "/home/changyoung/hdd/workspace/use-matlab/matlab/ifft3c.m"
+// "/home/changyoung/hdd/workspace/use-matlab/matlab/mapVBVD.m"
+// "/home/changyoung/hdd/workspace/use-matlab/matlab/mrxg_pre.m"
+// "/home/changyoung/hdd/workspace/use-matlab/matlab/read_twix_hdr.m"
+// "/home/changyoung/hdd/workspace/use-matlab/matlab/redim.m"
+// "/home/changyoung/hdd/workspace/use-matlab/matlab/twix_map_obj.m" 
 //
 
 #ifndef __libmrxg_h
@@ -74,10 +80,22 @@ extern LIB_libmrxg_C_API
 void MW_CALL_CONV libmrxgPrintStackTrace(void);
 
 extern LIB_libmrxg_C_API 
+bool MW_CALL_CONV mlxIfft3c(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
+
+extern LIB_libmrxg_C_API 
 bool MW_CALL_CONV mlxMapVBVD(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
 
 extern LIB_libmrxg_C_API 
 bool MW_CALL_CONV mlxMrxg_pre(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
+
+extern LIB_libmrxg_C_API 
+bool MW_CALL_CONV mlxRead_twix_hdr(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
+
+extern LIB_libmrxg_C_API 
+bool MW_CALL_CONV mlxRedim(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
+
+extern LIB_libmrxg_C_API 
+bool MW_CALL_CONV mlxTwix_map_obj(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[]);
 
 
 #ifdef __cplusplus
@@ -109,9 +127,23 @@ bool MW_CALL_CONV mlxMrxg_pre(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs
 
 #endif
 
+extern LIB_libmrxg_CPP_API void MW_CALL_CONV ifft3c(int nargout, mwArray& im, const mwArray& d, const mwArray& option);
+
 extern LIB_libmrxg_CPP_API void MW_CALL_CONV mapVBVD(int nargout, mwArray& twix_obj, const mwArray& filename, const mwArray& varargin);
 
-extern LIB_libmrxg_CPP_API void MW_CALL_CONV mrxg_pre(int nargout, mwArray& rawd, mwArray& im_mask, mwArray& k_mask, mwArray& k_norm, mwArray& header, const mwArray& filename);
+extern LIB_libmrxg_CPP_API void MW_CALL_CONV mrxg_pre(int nargout, mwArray& rawd, mwArray& im_mask, mwArray& k_mask, mwArray& k_norm, mwArray& header, mwArray& recon_option, const mwArray& filename);
+
+extern LIB_libmrxg_CPP_API void MW_CALL_CONV read_twix_hdr(int nargout, mwArray& prot, const mwArray& fid);
+
+extern LIB_libmrxg_CPP_API void MW_CALL_CONV redim(int nargout, mwArray& output, const mwArray& rawd, const mwArray& target_dim);
+
+extern LIB_libmrxg_CPP_API void MW_CALL_CONV twix_map_obj(int nargout, mwArray& varargout, const mwArray& varargin);
+
+extern LIB_libmrxg_CPP_API void MW_CALL_CONV twix_map_obj(int nargout, mwArray& varargout);
+
+extern LIB_libmrxg_CPP_API void MW_CALL_CONV twix_map_obj(const mwArray& varargin);
+
+extern LIB_libmrxg_CPP_API void MW_CALL_CONV twix_map_obj();
 
 #endif
 #endif

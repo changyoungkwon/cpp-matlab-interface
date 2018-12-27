@@ -1,9 +1,20 @@
-function [rawd, im_mask, k_mask, k_norm, header] = mrxg_pre( filename )
+function [rawd, im_mask, k_mask, k_norm, header, recon_option] = mrxg_pre( filename )
 
 % parsing
-h=mapVBVD(fname);
+h=mapVBVD(filename);
 hsize=h.image.sqzSize;
 header=h.hdr;
+
+
+if(findstr(header.Dicom.tProtocolName,'mrxg'))
+    if(findstr(header.Dicom.tProtocolName,'flair')||findstr(h.Dicom.tProtocolName,'FLAIR')||findstr(h.Dicom.tProtocolName,'Flair'))
+        recon_option=sprintf('flair%d',header.Dicom.lAccelFactPE);
+    else
+        recon_option=sprintf('t2%d',header.Dicom.lAccelFactPE);
+    end
+else
+    recon_option='-1';
+end
 
 % make 4-D rawdata (x, y, z, c)
 if(length(hsize)==6)
@@ -33,15 +44,17 @@ for it=(round(size(rawd,2)/2)-3):(round(size(rawd,2)/2)+4)
 end
 rawd(:,flg:flg+size(ref,2)-1,:,:)=ref;
 
-if(h.hdr.Config.PhaseResolution<1)
+if(header.Config.PhaseResolution<1)
     indx=(1/h.hdr.Config.PhaseResolution-1)*size(rawd,2)/2;
     rawd=cat(2,zeros(size(rawd,1),floor(indx),size(rawd,3),size(rawd,4)),rawd,zeros(size(rawd,1),ceil(indx),size(rawd,3),size(rawd,4)));
+else
+    indx=0;
 end
 
 % k-space normalize
 [xres yres zres cres] = size(rawd);
 k_tmp = abs(rawd).^2;
-k_norm = sqz(sqrt(sum(sum(sum(k_tmp,1),2),4)));
+k_norm = squeeze(sqrt(sum(sum(sum(k_tmp,1),2),4)));
 for zit=1:zres
     rawd(:,:,zit,:)=single(rawd(:,:,zit,:)/k_norm(zit));
 end
@@ -65,14 +78,14 @@ for it=1:size(im_mask,3);
     im_mask=redim(im_mask,[xres,yres,zres,cres]);
 end
 im_mask=im_mask>0;
-
+save('output.mat', 'rawd', 'im_mask', 'k_mask', 'k_norm', 'header', 'recon_option');
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% matlab
 %%%%%%%%%%%%%%%%%% parsing *.dat %%%%%%%%%%%%%%%%%% mrxg_pre
-%%%%%%%%%%%%%%%%%% input : *.dat %%%%%%%%%%%%%%%%%% 
-% output : rawd, im_mask, k_mask, k_norm, header %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% input : *.dat %%%%%%%%%%%%%%%%%%
+% output : rawd, im_mask, k_mask, k_norm, header, %
+%%%%%%%%%% recon_option %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% c
 %%%%%%%%%%%%%%%%%%%%%   bart  %%%%%%%%%%%%%%%%%%%%% file i/o
@@ -87,32 +100,32 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% python
-%%%%%%%%%%%%%%%%%%%%% g-factor %%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%% g-factor %%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%% input : rawd, im_mask, csm    %%%%%%%%%%
 %%%%%%%%% output : g-factor              %%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% python
 %%%%%%%%%%%%%%%% make network input %%%%%%%%%%%%%%%
-%%%%%%% input : rawd, csm, g-factor         %%%%%%%
-%%% output : sens_in, g-fact_in, im_in          %%%
+%%%%%%%%%% input : rawd, csm, g-factor %%%%%%%%%%%%
+%%%%%%% output : sens_in, g-fact_in, im_in %%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% python
-%%%%%%%%%%% mrxg network forwarding YJY %%%%%%%%%%% 
-% input : sens_in, g-fact_in, im_in, header %
+%%%%%%%%%%% mrxg network forwarding YJY %%%%%%%%%%%
+%%%% input : sens_in, g-fact_in, im_in, header %%%%
 %%%%%%%%%%%%%%%%% output : im_out %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% python
-%%%%%%%%%%% mrxg network forwarding KJG %%%%%%%%%%% 
-%%%%%%%%%%%%% input : im_out, cgsense, header %%%%%%%%%%%%%
+%%%%%%%%%%% mrxg network forwarding KJG %%%%%%%%%%%
+%%%%%%%%% input : im_out, cgsense, header %%%%%%%%%
 %%%%%%%%%%%%%% output : im_out_filt %%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% python
 %%%%%%%%%%%%% mrxg_post: dicom write %%%%%%%%%%%%%% mrxg_post
-%%%%%%%%% input : im_out_filt, header, k_norm %%%%%%%%%%
+%%%%%% input : im_out_filt, header, k_norm %%%%%%%%
 %%%%%%%%%% output : (doing dicom write) %%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
