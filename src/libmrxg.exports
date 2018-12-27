@@ -1,0 +1,9 @@
+libmrxgInitialize
+libmrxgInitializeWithHandlers
+libmrxgTerminate
+libmrxgPrintStackTrace
+mlxMapVBVD
+mapVBVD
+mlxMrxg_pre
+mrxg_pre
+
